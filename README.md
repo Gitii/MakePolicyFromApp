@@ -28,8 +28,7 @@
     <a href="https://github.com/Gitii/MakePolicyFromApp"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/Gitii/MakePolicyFromApp/issues">Report Bug</a>
-    ·
+    <a href="https://github.com/Gitii/MakePolicyFromApp/issues">Report Bug</a>·
     <a href="https://github.com/Gitii/MakePolicyFromApp/issues">Request Feature</a>
   </p>
 </p>
@@ -55,9 +54,9 @@
     <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li>
-      <a href="#getting-started">Getting Started (build your own copy)</a>
+      <a href="#getting-started-build-your-own-copy">Getting Started (build your own copy)</a>
       <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#prerequisites-1">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
