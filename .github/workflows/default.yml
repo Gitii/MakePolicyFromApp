@@ -27,7 +27,7 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-version }}
           include-prerelease: true
       - name: Publish
-        run: dotnet publish MakePolicyFromApp.csproj -c release /p:PublishProfile="${{ matrix.arch }}" -o "$env:OUTPUT_DIR"
+        run: dotnet publish MakePolicyFromApp.csproj -c release /p:PublishProfile="${{ matrix.arch }}" -o "$env:OUTPUT_DIR" -p:Version="$env:GIT_TAG_NAME"
         env:
           OUTPUT_DIR: ./bin/Release/publish/${{ matrix.arch }}
       - name: Package
