@@ -22,16 +22,16 @@ jobs:
           tagRegexGroup: 1 # Optional. Default is 1.
       - uses: actions/checkout@v2
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
-        uses: actions/setup-dotnet@v1.7.2
+        uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
           include-prerelease: true
       - name: Install dependencies
         run: dotnet restore
       - name: Build
-        run: dotnet build --configuration Release --no-restore /property:Version="$GIT_TAG_NAME"
-      - name: Test
-        run: dotnet test --no-restore --verbosity normal
+        run: dotnet build -c Release -r ${{ matrix.arch }} --no-restore /property:Version="$GIT_TAG_NAME"
+#      - name: Test
+#        run: dotnet test --no-restore --verbosity normal
       - name: Publish
         run: dotnet publish -c Release -r ${{ matrix.arch }} --no-build --self-contained true -o "release-${{ matrix.arch }}"
       - name: Package
