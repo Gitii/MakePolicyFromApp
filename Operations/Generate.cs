@@ -39,7 +39,7 @@ namespace MakePolicyFromApp.Operations
 
             try
             {
-                await CopyTo(args.InputFile, installerDirectory);
+                await IO.CopyToDirectoryAsync(args.InputFile, installerDirectory);
 
                 await extractor.Extract(inputFile, appDirectory);
 
@@ -56,19 +56,6 @@ namespace MakePolicyFromApp.Operations
             {
                 Directory.Delete(rootDirectory, true);
             }
-        }
-
-        private async Task CopyFileAsync(string sourcePath, string destinationPath)
-        {
-            await using Stream source = File.OpenRead(sourcePath);
-            await using Stream destination = File.Create(destinationPath);
-            await source.CopyToAsync(destination);
-        }
-
-        private async Task CopyTo(string inputFile, string outputDirectory)
-        {
-            var outputFile = Path.Join(outputDirectory, Path.GetFileName(inputFile));
-            await CopyFileAsync(inputFile, outputFile);
         }
 
         private (string rootDirectory, string installerDirectory, string appDirectory) GetOutputDirectory()

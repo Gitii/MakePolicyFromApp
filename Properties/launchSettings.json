@@ -1,8 +1,16 @@
 {
   "profiles": {
-    "MakePolicyFromApp": {
+    "Help": {
+      "commandName": "Project",
+      "commandLineArgs": "help analyze"
+    },
+    "sample generate 7zip": {
       "commandName": "Project",
       "commandLineArgs": "generate -i \"C:\\Users\\Germi\\Downloads\\7z2103-x64.exe\" -o \"C:\\Users\\Germi\\Downloads\\7z2103-x64.xml\""
+    },
+    "sample analyze 7zip": {
+      "commandName": "Project",
+      "commandLineArgs": "analyze -i \"C:\\Users\\Germi\\Downloads\\7z2103-x64.exe\""
     }
   }
 }

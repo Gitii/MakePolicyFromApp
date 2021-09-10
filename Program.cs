@@ -32,9 +32,11 @@ namespace MakePolicyFromApp
                 {
                     services.AddHostedService<MainService>();
                     services.AddSingleton<IOperation<GenerateArguments>, Operations.Generate>();
+                    services.AddSingleton<IOperation<AnalyzeArguments>, Operations.Analyze>();
                     services.AddTransient<Services.IExtractor, Services.Extractor>();
                     services.AddTransient<Services.IPolicy, Services.Policy>();
                     services.AddTransient<Services.IPowershell, Services.Powershell>();
+                    services.AddTransient<Services.ISignatureVerifier, Services.SignatureVerifier>();
                 });
         }
     }

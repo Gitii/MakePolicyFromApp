@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MakePolicyFromApp
 {
-    [Verb("generate", HelpText = "Analyzes the installer and generates a report.")]
+    [Verb("generate", HelpText = "Analyzes the installer and generates a WDAC policy file.")]
     class GenerateArguments
     {
         [Option('i', "input", Required = true, HelpText = "The installer that will be analyzed.")]
