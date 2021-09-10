@@ -18,25 +18,19 @@ jobs:
       - uses: olegtarasov/get-tag@v2.1
         id: tagName
         with:
-          tagRegex: "v(.*)"  # Optional. Returns specified group text as tag name. Full tag string is returned if regex is not defined.
-          tagRegexGroup: 1 # Optional. Default is 1.
+          tagRegex: "v(.*)" 
+          tagRegexGroup: 1
       - uses: actions/checkout@v2
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ matrix.dotnet-version }}
           include-prerelease: true
-      - name: Install dependencies
-        run: dotnet restore
-      - name: Build
-        run: dotnet build -c Release -r ${{ matrix.arch }} --no-restore /property:Version="$GIT_TAG_NAME"
-#      - name: Test
-#        run: dotnet test --no-restore --verbosity normal
       - name: Publish
-        run: dotnet publish -c Release -r ${{ matrix.arch }} --no-build --self-contained true -o "release-${{ matrix.arch }}"
+        run: dotnet publish MakePolicyFromApp.csproj /p:PublishProfile="Properties\PublishProfiles\${{ matrix.arch }}.pubxml"
       - name: Package
-        run: 7z a -tzip "release-$GIT_TAG_NAME-${{ matrix.arch }}.zip" "./release-${{ matrix.arch }}/*"
-      - name: Publish
+        run: 7z a -m=9 -t=zip "release-$GIT_TAG_NAME-${{ matrix.arch }}.zip" "./bin/Release/publish/${{ matrix.arch }}/*"
+      - name: Upload
         uses: softprops/action-gh-release@v1
         with:
           files: "release-*.zip"
