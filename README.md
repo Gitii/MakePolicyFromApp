@@ -310,6 +310,8 @@ Count: 8
 
 <!-- ROADMAP -->
 ## Roadmap
+`DONE` Main feature: Generation of policies  
+`OPEN` Quality of life: Logging level
 
 See the [open issues](https://github.com/Gitii/MakePolicyFromApp/issues) for a list of proposed features (and known issues).
 
