@@ -11,7 +11,6 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
 
 <!-- PROJECT LOGO -->
 <br />
@@ -371,15 +370,13 @@ Project Link: [https://github.com/Gitii/MakePolicyFromApp](https://github.com/Gi
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/Gitii/repo.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/Gitii/MakePolicyFromApp
 [contributors-url]: https://github.com/Gitii/MakePolicyFromApp/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/Gitii/repo.svg?style=for-the-badge
+[forks-shield]: https://img.shields.io/github/forks/Gitii/MakePolicyFromApp
 [forks-url]: https://github.com/Gitii/MakePolicyFromApp/network/members
-[stars-shield]: https://img.shields.io/github/stars/Gitii/repo.svg?style=for-the-badge
+[stars-shield]: https://img.shields.io/github/stars/Gitii/MakePolicyFromApp
 [stars-url]: https://github.com/Gitii/MakePolicyFromApp/stargazers
-[issues-shield]: https://img.shields.io/github/issues/Gitii/repo.svg?style=for-the-badge
+[issues-shield]: https://img.shields.io/github/issues/Gitii/MakePolicyFromApp
 [issues-url]: https://github.com/Gitii/MakePolicyFromApp/issues
-[license-shield]: https://img.shields.io/github/license/Gitii/repo.svg?style=for-the-badge
-[license-url]: https://github.com/Gitii/MakePolicyFromApp/blob/master/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/Gitii
+[license-shield]: https://img.shields.io/github/license/Gitii/MakePolicyFromApp
+[license-url]: https://github.com/Gitii/MakePolicyFromApp/blob/master/LICENSE
