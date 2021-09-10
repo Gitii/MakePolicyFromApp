@@ -27,12 +27,12 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-version }}
           include-prerelease: true
       - name: Publish
-        run: dotnet publish MakePolicyFromApp.csproj -c release /p:PublishProfile="$PROFILE_PATH" -o "$OUTPUT_DIR"
+        run: dotnet publish MakePolicyFromApp.csproj -c release /p:PublishProfile="$env:PROFILE_PATH" -o "$env:OUTPUT_DIR"
         env:
           PROFILE_PATH: Properties\PublishProfiles\${{ matrix.arch }}.pubxml
           OUTPUT_DIR: ./bin/Release/publish/${{ matrix.arch }}
       - name: Package
-        run: 7z a -mx9 -tzip "release-${GIT_TAG_NAME}-${{ matrix.arch }}.zip" "$PUBLISH_DIR/*"
+        run: 7z a -mx9 -tzip "release-${env:GIT_TAG_NAME}-${{ matrix.arch }}.zip" "$env:PUBLISH_DIR/*"
         env:
           PUBLISH_DIR: ./bin/Release/publish/${{ matrix.arch }}
       - name: Upload
