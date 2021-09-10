@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MakePolicyFromApp": {
+      "commandName": "Project",
+      "commandLineArgs": "generate -i \"C:\\Users\\Germi\\Downloads\\7z2103-x64.exe\" -o \"C:\\Users\\Germi\\Downloads\\7z2103-x64.xml\""
+    }
+  }
+}
