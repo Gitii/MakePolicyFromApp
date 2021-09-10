@@ -27,9 +27,9 @@ jobs:
           dotnet-version: ${{ matrix.dotnet-version }}
           include-prerelease: true
       - name: Publish
-        run: dotnet publish MakePolicyFromApp.csproj /p:PublishProfile="Properties\PublishProfiles\${{ matrix.arch }}.pubxml"
+        run: dotnet publish MakePolicyFromApp.csproj -c release /p:PublishProfile="Properties\PublishProfiles\${{ matrix.arch }}.pubxml"
       - name: Package
-        run: 7z a -m=9 -t=zip "release-$GIT_TAG_NAME-${{ matrix.arch }}.zip" "./bin/Release/publish/${{ matrix.arch }}/*"
+        run: 7z a -mx9 -tzip "release-${GIT_TAG_NAME}-${{ matrix.arch }}.zip" "./bin/Release/publish/${{ matrix.arch }}/*"
       - name: Upload
         uses: softprops/action-gh-release@v1
         with:
