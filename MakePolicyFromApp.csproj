@@ -60,6 +60,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include=".github\workflows\default.yml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="README.md">
       <Pack>True</Pack>
     </None>
