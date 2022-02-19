@@ -1,109 +1,107 @@
 ﻿using MakePolicyFromApp.Services;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MakePolicyFromApp.Operations
+namespace MakePolicyFromApp.Operations;
+
+class Generate : IOperation<GenerateArguments>
 {
-    class Generate : IOperation<GenerateArguments>
+    private ILogger<MainService> Logger { get; }
+    private IExtractor Extractor { get; }
+    private IPolicy Policy { get; }
+
+    public Generate(ILogger<MainService> logger, IExtractor extractor, IPolicy policy)
     {
-        private ILogger<MainService> logger { get; }
-        private IExtractor extractor { get; }
-        private IPolicy policy { get; }
+        this.Logger = logger;
+        this.Extractor = extractor;
+        this.Policy = policy;
+    }
 
-        public Generate(ILogger<MainService> logger, IExtractor extractor, IPolicy policy)
+    public async Task StartAsync(GenerateArguments args)
+    {
+        Logger.LogInformation($"Analyzing file {args.InputFile}...");
+
+        var inputFile = args.InputFile;
+
+        if (!File.Exists(inputFile))
         {
-            this.logger = logger;
-            this.extractor = extractor;
-            this.policy = policy;
+            throw new FileNotFoundException("The input file doesn't exit!", inputFile);
         }
 
-        public async Task StartAsync(GenerateArguments args)
+        var (rootDirectory, installerDirectory, appDirectory) = GetOutputDirectory();
+
+
+        try
         {
-            logger.LogInformation($"Analyzing file {args.InputFile}...");
+            await Io.CopyToDirectoryAsync(args.InputFile, installerDirectory).ConfigureAwait(false);
 
-            var inputFile = args.InputFile;
+            await Extractor.ExtractAsync(inputFile, appDirectory).ConfigureAwait(false);
 
-            if (!File.Exists(inputFile))
-            {
-                throw new FileNotFoundException("The input file doesn't exit!", inputFile);
-            }
+            var generatedPolicy = await this.Policy.GenerateAsync(rootDirectory).ConfigureAwait(false);
 
-            var (rootDirectory, installerDirectory, appDirectory) = GetOutputDirectory();
+            var contextName = args.ContextName ?? GetContextNameFromFile(args.InputFile);
 
+            var betterPolicy =
+                await this.Policy.MakePolicyHumanReadableAsync(generatedPolicy, rootDirectory, contextName)
+                    .ConfigureAwait(false);
 
-            try
-            {
-                await IO.CopyToDirectoryAsync(args.InputFile, installerDirectory);
+            await WriteOutputAsync(betterPolicy, args.OutputFile).ConfigureAwait(false);
+        }
+        finally
+        {
+            Directory.Delete(rootDirectory, true);
+        }
+    }
 
-                await extractor.Extract(inputFile, appDirectory);
+    private (string rootDirectory, string installerDirectory, string appDirectory) GetOutputDirectory()
+    {
+        var root = Path.Join(Path.GetTempPath(), (Guid.NewGuid()).ToString());
+        var installer = Path.Join(root, "installer");
+        var app = Path.Join(root, "app");
 
-                var generatedPolicy = await this.policy.Generate(rootDirectory);
+        Directory.CreateDirectory(root);
+        Directory.CreateDirectory(installer);
+        Directory.CreateDirectory(app);
 
-                var contextName = args.ContextName ?? GetContextNameFromFile(args.InputFile);
+        return (root, installer, app);
+    }
 
-                var betterPolicy =
-                    await this.policy.MakePolicyHumanReadable(generatedPolicy, rootDirectory, contextName);
+    private async Task WriteOutputAsync(string betterPolicy, string? outputFile)
+    {
+        if (string.IsNullOrEmpty(outputFile))
+        {
+            Console.WriteLine(betterPolicy);
+        }
+        else
+        {
+            await File.WriteAllTextAsync(outputFile, betterPolicy, Encoding.UTF8).ConfigureAwait(false);
+        }
+    }
 
-                await WriteOutput(betterPolicy, args.OutputFile);
-            }
-            finally
-            {
-                Directory.Delete(rootDirectory, true);
-            }
+    private string GetContextNameFromFile(string filePath)
+    {
+        var info = FileVersionInfo.GetVersionInfo(filePath);
+
+        var name = Path.GetFileName(filePath);
+
+        if (!string.IsNullOrEmpty(info.ProductName))
+        {
+            name = info.ProductName;
         }
 
-        private (string rootDirectory, string installerDirectory, string appDirectory) GetOutputDirectory()
+        if (!string.IsNullOrEmpty(info.ProductVersion))
         {
-            var root = Path.Join(Path.GetTempPath(), (Guid.NewGuid()).ToString());
-            var installer = Path.Join(root, "installer");
-            var app = Path.Join(root, "app");
-
-            Directory.CreateDirectory(root);
-            Directory.CreateDirectory(installer);
-            Directory.CreateDirectory(app);
-
-            return (root, installer, app);
+            name += $" ({info.ProductVersion})";
+        }
+        else if (!string.IsNullOrEmpty(info.FileVersion))
+        {
+            name += $" ({info.ProductVersion})";
         }
 
-        private async Task WriteOutput(string betterPolicy, string? outputFile)
-        {
-            if (string.IsNullOrEmpty(outputFile))
-            {
-                Console.WriteLine(betterPolicy);
-            }
-            else
-            {
-                await File.WriteAllTextAsync(outputFile, betterPolicy, Encoding.UTF8);
-            }
-        }
-
-        private string GetContextNameFromFile(string filePath)
-        {
-            var info = FileVersionInfo.GetVersionInfo(filePath);
-
-            var name = Path.GetFileName(filePath);
-
-            if (!string.IsNullOrEmpty(info.ProductName))
-            {
-                name = info.ProductName;
-            }
-
-            if (!string.IsNullOrEmpty(info.ProductVersion))
-            {
-                name += $" ({info.ProductVersion})";
-            }
-            else if (!string.IsNullOrEmpty(info.FileVersion))
-            {
-                name += $" ({info.ProductVersion})";
-            }
-
-            return name;
-        }
+        return name;
     }
 }

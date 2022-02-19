@@ -5,56 +5,61 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using CommandLine;
-using CommandLine.Text;
 
-namespace MakePolicyFromApp
+namespace MakePolicyFromApp;
+
+class MainService : IHostedService
 {
-    class MainService : IHostedService
+    private ILogger<MainService> Logger { get; }
+    private IHostApplicationLifetime AppLifetime { get; }
+    private IOperation<GenerateArguments> GenerateOperation { get; }
+    private IOperation<AnalyzeArguments> AnalyzeOperation { get; }
+
+    public MainService(
+        ILogger<MainService> logger,
+        IHostApplicationLifetime appLifetime,
+        IOperation<GenerateArguments> generateOperation,
+        IOperation<AnalyzeArguments> analyzeOperation
+    )
     {
-        private ILogger<MainService> logger { get; }
-        private IHostApplicationLifetime appLifetime { get; }
-        private IOperation<GenerateArguments> generateOperation { get; }
-        private IOperation<AnalyzeArguments> analyzeOperation { get; }
+        this.Logger = logger;
+        this.AppLifetime = appLifetime;
+        this.GenerateOperation = generateOperation;
+        this.AnalyzeOperation = analyzeOperation;
+    }
 
-        public MainService(ILogger<MainService> logger, IHostApplicationLifetime appLifetime,
-            IOperation<GenerateArguments> generateOperation, IOperation<AnalyzeArguments> analyzeOperation)
-        {
-            this.logger = logger;
-            this.appLifetime = appLifetime;
-            this.generateOperation = generateOperation;
-            this.analyzeOperation = analyzeOperation;
-        }
+    public async Task StartAsync(CancellationToken cancellationToken)
+    {
+        var args = Environment.GetCommandLineArgs().Skip(1).ToArray();
 
-        public async Task StartAsync(CancellationToken cancellationToken)
-        {
-            var args = Environment.GetCommandLineArgs().Skip(1).ToArray();
+        var result = CommandLine.Parser.Default.ParseArguments<GenerateArguments, AnalyzeArguments>(
+            args
+        );
+        var returnCode = await result.MapResult<GenerateArguments, AnalyzeArguments, Task<int>>(
+            GenerateAndReturnExitCodeAsync,
+            AnalyzeAddAndReturnExitCodeAsync,
+            (errs) => Task.FromResult(-1)
+        ).ConfigureAwait(false);
 
-            var result = CommandLine.Parser.Default.ParseArguments<GenerateArguments, AnalyzeArguments>(args);
-            var returnCode = await result
-                .MapResult<GenerateArguments, AnalyzeArguments, Task<int>>(
-                    GenerateAndReturnExitCode,
-                    AnalyzeAddAndReturnExitCode,
-                    (errs) => Task.FromResult(-1));
+        AppLifetime.StopApplication();
+    }
 
-            appLifetime.StopApplication();
-        }
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
 
-        public async Task StopAsync(CancellationToken cancellationToken)
-        {
-        }
+    private async Task<int> GenerateAndReturnExitCodeAsync(GenerateArguments args)
+    {
+        await GenerateOperation.StartAsync(args).ConfigureAwait(false);
 
-        private async Task<int> GenerateAndReturnExitCode(GenerateArguments args)
-        {
-            await this.generateOperation.StartAsync(args);
+        return 0;
+    }
 
-            return 0;
-        }
+    private async Task<int> AnalyzeAddAndReturnExitCodeAsync(AnalyzeArguments args)
+    {
+        await AnalyzeOperation.StartAsync(args).ConfigureAwait(false);
 
-        private async Task<int> AnalyzeAddAndReturnExitCode(AnalyzeArguments args)
-        {
-            await this.analyzeOperation.StartAsync(args);
-
-            return 0;
-        }
+        return 0;
     }
 }

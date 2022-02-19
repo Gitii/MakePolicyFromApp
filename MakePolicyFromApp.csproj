@@ -48,6 +48,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove=".github\**" />
+    <EmbeddedResource Remove=".github\**" />
+    <None Remove=".github\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="ConsoleTables" Version="2.4.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
@@ -57,10 +63,6 @@
 
   <ItemGroup>
     <Folder Include="Assets\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include=".github\workflows\default.yml" />
   </ItemGroup>
 
   <ItemGroup>

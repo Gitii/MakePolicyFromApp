@@ -2,86 +2,84 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using MakePolicyFromApp.Services;
 using Microsoft.Extensions.Logging;
 
-namespace MakePolicyFromApp.Operations
+namespace MakePolicyFromApp.Operations;
+
+class Analyze : IOperation<AnalyzeArguments>
 {
-    class Analyze : IOperation<AnalyzeArguments>
+    private ILogger<MainService> Logger { get; }
+    private IExtractor Extractor { get; }
+    private ISignatureVerifier SignatureVerifier { get; }
+
+    public Analyze(ILogger<MainService> logger, IExtractor extractor, ISignatureVerifier signatureVerifier)
     {
-        private ILogger<MainService> logger { get; }
-        private IExtractor extractor { get; }
-        private ISignatureVerifier signatureVerifier { get; }
+        this.Logger = logger;
+        this.Extractor = extractor;
+        this.SignatureVerifier = signatureVerifier;
+    }
 
-        public Analyze(ILogger<MainService> logger, IExtractor extractor, ISignatureVerifier signatureVerifier)
+    public async Task StartAsync(AnalyzeArguments args)
+    {
+        Logger.LogInformation($"Analyzing file {args.InputFile}...");
+
+        var inputFile = args.InputFile;
+
+        if (!File.Exists(inputFile))
         {
-            this.logger = logger;
-            this.extractor = extractor;
-            this.signatureVerifier = signatureVerifier;
+            throw new FileNotFoundException("The input file doesn't exit!", inputFile);
         }
 
-        public async Task StartAsync(AnalyzeArguments args)
+        var (rootDirectory, installerDirectory, appDirectory) = GetOutputDirectory();
+
+
+        try
         {
-            logger.LogInformation($"Analyzing file {args.InputFile}...");
+            await Io.CopyToDirectoryAsync(args.InputFile, installerDirectory).ConfigureAwait(false);
 
-            var inputFile = args.InputFile;
+            await Extractor.ExtractAsync(inputFile, appDirectory).ConfigureAwait(false);
 
-            if (!File.Exists(inputFile))
-            {
-                throw new FileNotFoundException("The input file doesn't exit!", inputFile);
-            }
+            var executablesAndDlls = FindAllExecutablesAndDlls(rootDirectory);
 
-            var (rootDirectory, installerDirectory, appDirectory) = GetOutputDirectory();
-
-
-            try
-            {
-                await IO.CopyToDirectoryAsync(args.InputFile, installerDirectory);
-
-                await extractor.Extract(inputFile, appDirectory);
-
-                var executablesAndDlls = FindAllExecutablesAndDlls(rootDirectory);
-
-                var signatures = executablesAndDlls
-                    .Select((filePath) => signatureVerifier.VerifySignature(filePath))
-                    .ToList();
-
-                var table = new ConsoleTables.ConsoleTable("Result", "FileName");
-                foreach (Signature signature in signatures)
-                {
-                    table.AddRow(signature.VerificationDetails,
-                        Path.GetRelativePath(rootDirectory, signature.FileName));
-                }
-
-                Console.WriteLine(table.ToString());
-            }
-            finally
-            {
-                Directory.Delete(rootDirectory, true);
-            }
-        }
-
-        private IList<string> FindAllExecutablesAndDlls(string directory)
-        {
-            return (new[] { "*.dll", "*.exe" })
-                .SelectMany((pattern) => Directory.EnumerateFiles(directory, pattern, SearchOption.AllDirectories))
-                .OrderBy((s) => s)
+            var signatures = executablesAndDlls
+                .Select((filePath) => SignatureVerifier.VerifySignature(filePath))
                 .ToList();
-        }
 
-        private (string rootDirectory, string installerDirectory, string appDirectory) GetOutputDirectory()
+            var table = new ConsoleTables.ConsoleTable("Result", "FileName");
+            foreach (Signature signature in signatures)
+            {
+                table.AddRow(signature.VerificationDetails,
+                    Path.GetRelativePath(rootDirectory, signature.FileName));
+            }
+
+            Console.WriteLine(table.ToString());
+        }
+        finally
         {
-            var root = Path.Join(Path.GetTempPath(), (Guid.NewGuid()).ToString());
-            var installer = Path.Join(root, "installer");
-            var app = Path.Join(root, "app");
-
-            Directory.CreateDirectory(root);
-            Directory.CreateDirectory(installer);
-            Directory.CreateDirectory(app);
-
-            return (root, installer, app);
+            Directory.Delete(rootDirectory, true);
         }
+    }
+
+    private IList<string> FindAllExecutablesAndDlls(string directory)
+    {
+        return (new[] { "*.dll", "*.exe" })
+            .SelectMany((pattern) => Directory.EnumerateFiles(directory, pattern, SearchOption.AllDirectories))
+            .OrderBy((s) => s)
+            .ToList();
+    }
+
+    private (string rootDirectory, string installerDirectory, string appDirectory) GetOutputDirectory()
+    {
+        var root = Path.Join(Path.GetTempPath(), (Guid.NewGuid()).ToString());
+        var installer = Path.Join(root, "installer");
+        var app = Path.Join(root, "app");
+
+        Directory.CreateDirectory(root);
+        Directory.CreateDirectory(installer);
+        Directory.CreateDirectory(app);
+
+        return (root, installer, app);
     }
 }

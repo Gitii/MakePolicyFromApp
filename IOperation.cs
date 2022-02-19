@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-namespace MakePolicyFromApp
+namespace MakePolicyFromApp;
+
+interface IOperation<T>
 {
-    interface IOperation<T>
-    {
-        public Task StartAsync(T arguments);
-    }
+    public Task StartAsync(T arguments);
 }
