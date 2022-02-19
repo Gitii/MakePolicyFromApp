@@ -1,0 +1,26 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "1e0e917a-3249-4903-b915-c1f9e13b7a85": {
+      "ProjectGuid": "1e0e917a-3249-4903-b915-c1f9e13b7a85",
+      "DisplayName": "MakePolicyFromApp",
+      "ColorIndex": 0
+    },
+    "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3": {
+      "ProjectGuid": "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3",
+      "DisplayName": "Miscellaneous Files",
+      "ColorIndex": -1
+    },
+    "d62e272a-92e8-4897-9931-096100b0e78f": {
+      "ProjectGuid": "d62e272a-92e8-4897-9931-096100b0e78f",
+      "DisplayName": "Solution Items",
+      "ColorIndex": 1
+    },
+    "5c3a3769-68da-4d33-8a91-c141c095ffb7": {
+      "ProjectGuid": "5c3a3769-68da-4d33-8a91-c141c095ffb7",
+      "DisplayName": "MakePolicyFromApp",
+      "ColorIndex": 2
+    }
+  },
+  "NextColorIndex": 3
+}
