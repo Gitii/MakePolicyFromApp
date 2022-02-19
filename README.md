@@ -1,4 +1,4 @@
-﻿<!-- PROJECT SHIELDS -->
+<!-- PROJECT SHIELDS -->
 <!--
 *** I'm using markdown "reference style" links for readability.
 *** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
@@ -16,7 +16,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/Gitii/MakePolicyFromApp">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="Assets/logo.png" alt="Logo" width="600">
   </a>
 
   <h3 align="center">Make Policy From App</h3>
@@ -69,8 +69,6 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-
-[![Product Name Screen Shot][product-screenshot]](https://github.com/Gitii/MakePolicyFromApp)
 
 A small console application that generates WDAC policy files from any installer.
 The generated policy includes the installer itself and it's contents. 
