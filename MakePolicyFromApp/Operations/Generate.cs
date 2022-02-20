@@ -36,10 +36,10 @@ class Generate : IOperation<GenerateArguments>
 
         var (rootDirectory, installerDirectory, appDirectory) = GetOutputDirectory();
 
-        var extractor = GetExtractor(args.Extractor, _extractors);
-
         try
         {
+            var extractor = GetExtractor(args.Extractor, _extractors);
+
             await Io.CopyToDirectoryAsync(args.InputFile, installerDirectory).ConfigureAwait(false);
 
             await extractor.ExtractAsync(inputFile, appDirectory).ConfigureAwait(false);
