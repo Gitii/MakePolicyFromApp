@@ -15,12 +15,16 @@ class Policy : IPolicy
     private readonly IPowershell _powershell;
     private readonly ILogger<Policy> _logger;
 
-    private static readonly Regex _notIdRegex = new Regex("[^_A-Z0-9]+", RegexOptions.None, TimeSpan.FromSeconds(1));
+    private static readonly Regex _notIdRegex = new Regex(
+        "[^_A-Z0-9]+",
+        RegexOptions.None,
+        TimeSpan.FromSeconds(1)
+    );
 
     public Policy(IPowershell powershell, ILogger<Policy> logger)
     {
-        this._powershell = powershell;
-        this._logger = logger;
+        _powershell = powershell;
+        _logger = logger;
     }
 
     public async Task<string> GenerateAsync(string directory)
@@ -31,18 +35,20 @@ class Policy : IPolicy
         {
             _logger.LogInformation("Generating policy from " + directory);
 
-            await _powershell.ExecuteCommandAsync(
-                "New-CIPolicy",
-                new Dictionary<string, object>()
-                {
-                    { "ScanPath", directory },
-                    { "Level", "Publisher" },
-                    { "Fallback", "Hash" },
-                    { "FilePath", policyFile },
-                    { "UserPEs", IPowershell.Void }
-                },
-                new[] { "ConfigCI" }
-            ).ConfigureAwait(false);
+            await _powershell
+                .ExecuteCommandAsync(
+                    "New-CIPolicy",
+                    new Dictionary<string, object>()
+                    {
+                        { "ScanPath", directory },
+                        { "Level", "Publisher" },
+                        { "Fallback", "Hash" },
+                        { "FilePath", policyFile },
+                        { "UserPEs", IPowershell.Void }
+                    },
+                    new[] { "ConfigCI" }
+                )
+                .ConfigureAwait(false);
 
             return await File.ReadAllTextAsync(policyFile).ConfigureAwait(false);
         }
@@ -84,7 +90,7 @@ class Policy : IPolicy
         )
         {
             friendlyNameAttribute.Value =
-                $"Generated policy for \"{contextName}\" ({DateTime.Today.ToShortDateString()})";
+                $"Generated policy for '{contextName}' ({DateTime.Today.ToShortDateString()})";
         }
     }
 
@@ -108,7 +114,8 @@ class Policy : IPolicy
                 return origValue;
             }
 
-            friendlyNameValue = MakeRelative(contextDirectory, friendlyNameValue).ToUpper(CultureInfo.InvariantCulture);
+            friendlyNameValue = MakeRelative(contextDirectory, friendlyNameValue)
+                .ToUpper(CultureInfo.InvariantCulture);
 
             var id = "ID_ALLOW_" + _notIdRegex.Replace(friendlyNameValue, "_");
             if (id.Length > 100)

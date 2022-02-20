@@ -1,32 +1,35 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace MakePolicyFromApp.Services;
 
-class Extractor : IExtractor
+abstract class BaseExtractor : IExtractor
 {
-    private const string DownloadUrl =
-        "https://github.com/Bioruebe/UniExtract2/releases/download/v2.0.0-rc.3/UniExtractRC3.zip";
-
     private ILogger<MainService> Logger { get; }
 
-    public Extractor(ILogger<MainService> logger)
+    protected abstract string GetExtractorDownloadUrl();
+
+    protected abstract string DisplayName { get; }
+
+    protected BaseExtractor(ILogger<MainService> logger)
     {
-        this.Logger = logger;
+        Logger = logger;
     }
 
     public async Task DownloadAsync(string targetFilePath)
     {
-        Logger.LogInformation($"Downloading {DownloadUrl}...");
+        string downloadUrl = GetExtractorDownloadUrl();
+
+        Logger.LogInformation($"Downloading {downloadUrl}...");
         using var client = new HttpClient();
 
         Logger.LogInformation($"Writing to {targetFilePath}...");
-        await using var stream = await client.GetStreamAsync(DownloadUrl).ConfigureAwait(false);
+        await using var stream = await client.GetStreamAsync(downloadUrl).ConfigureAwait(false);
         var output = File.OpenWrite(targetFilePath);
         await using var _ = output.ConfigureAwait(false);
         await stream.CopyToAsync(output).ConfigureAwait(false);
@@ -38,6 +41,8 @@ class Extractor : IExtractor
         return Task.CompletedTask;
     }
 
+    public abstract string Name { get; set; }
+
     public async Task<string> ExtractAsync(string fileName, string outputDirectory)
     {
         fileName = Path.GetFullPath(fileName);
@@ -46,7 +51,9 @@ class Extractor : IExtractor
             throw new FileNotFoundException(fileName);
         }
 
-        var (directory, fullPath) = this.GetAppPath();
+        var directory = GetDownloadDirectory();
+
+        var fullPath = GetAppPath(directory);
 
         Directory.CreateDirectory(directory);
 
@@ -57,7 +64,7 @@ class Extractor : IExtractor
             if (!File.Exists(fullPath))
             {
                 throw new Exception(
-                    "Download and extracted UniExtract2 but failed to find executable!"
+                    $"Download and extracted {DisplayName} but failed to find executable!"
                 );
             }
         }
@@ -70,7 +77,7 @@ class Extractor : IExtractor
     }
 
     private async Task<string> ExtractNowAsync(
-        string universalExtractFilePath,
+        string extractorFilePath,
         string archiveFilePath,
         string outputDirectory
     )
@@ -80,12 +87,11 @@ class Extractor : IExtractor
         try
         {
             var startInfo = new ProcessStartInfo();
-            startInfo.FileName = universalExtractFilePath;
+            SetupStartInfo(startInfo, archiveFilePath, outputDirectory);
+
+            startInfo.FileName = extractorFilePath;
             startInfo.CreateNoWindow = false;
             startInfo.UseShellExecute = false;
-            // startInfo.ArgumentList.Add("/silent");
-            startInfo.ArgumentList.Add(archiveFilePath);
-            startInfo.ArgumentList.Add(outputDirectory);
             startInfo.RedirectStandardError = true;
             startInfo.RedirectStandardOutput = true;
 
@@ -93,7 +99,9 @@ class Extractor : IExtractor
 
             if (process == null)
             {
-                throw new Exception($"Failed to start UniExtract: {universalExtractFilePath}");
+                throw new Exception(
+                    $"Failed to start {DisplayName}: {extractorFilePath}"
+                );
             }
 
             await process.WaitForExitAsync().ConfigureAwait(false);
@@ -104,7 +112,8 @@ class Extractor : IExtractor
                 var stdOut = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
 
                 throw new Exception(
-                    $"Failed to extract using UniExtract ({TranslateExitCodes(process.ExitCode)}):{Environment.NewLine}{stdErr}{Environment.NewLine}{stdOut}".Trim()
+                    $"Failed to extract using {DisplayName} ({TranslateExitCodes(process.ExitCode)}):{Environment.NewLine}{stdErr}{Environment.NewLine}{stdOut}"
+                        .Trim()
                 );
             }
 
@@ -118,50 +127,19 @@ class Extractor : IExtractor
         }
     }
 
-    private string TranslateExitCodes(int exitCode)
-    {
-        switch (exitCode)
-        {
-            case 0:
-                return "Success";
-            case 3:
-                return "STATUS_UNKNOWNEXE";
-            case 4:
-                return "STATUS_UNKNOWNEXT";
-            case 5:
-                return "STATUS_INVALIDFILE or STATUS_INVALIDDIR";
-            case 6:
-                return "STATUS_NOTPACKED";
-            case 7:
-                return "STATUS_NOTSUPPORTED";
-            case 8:
-                return "STATUS_MISSINGEXE";
-            case 9:
-                return "STATUS_TIMEOUT";
-            case 10:
-                return "STATUS_PASSWORD";
-            case 11:
-                return "STATUS_MISSINGDEF";
-            case 12:
-                return "STATUS_MOVEFAILED";
-            case 13:
-                return "STATUS_NOFREESPACE";
-            case 14:
-                return "STATUS_MISSINGPART";
-            default:
-                return $"Unknown exit code {exitCode}";
-        }
-    }
+    protected abstract void SetupStartInfo(ProcessStartInfo startInfo, string archiveFilePath, string outputDirectory);
+
+    protected abstract string TranslateExitCodes(int processExitCode);
 
     private async Task DownloadAndExtractAsync(string directory)
     {
         var tempFile = Path.GetTempFileName();
         try
         {
-            Logger.LogDebug("Downloading UniExtract2 to " + tempFile);
+            Logger.LogDebug($"Downloading {DisplayName} to " + tempFile);
             await DownloadAsync(tempFile).ConfigureAwait(false);
 
-            Logger.LogDebug("Extracting UniExtract2 to " + tempFile);
+            Logger.LogDebug($"Extracting {DisplayName} to " + tempFile);
             await ExtractToAsync(tempFile, directory).ConfigureAwait(false);
         }
         finally
@@ -170,10 +148,10 @@ class Extractor : IExtractor
         }
     }
 
-    private (string directory, string fullFilePath) GetAppPath()
+    protected virtual string GetDownloadDirectory()
     {
-        var dir = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "deps", "UniExtract2");
-
-        return (dir, Path.Join(dir, "UniExtract", "UniExtract.exe"));
+        return Path.Join(AppDomain.CurrentDomain.BaseDirectory, "deps", Name);
     }
+
+    protected abstract string GetAppPath(string baseDirectory);
 }
