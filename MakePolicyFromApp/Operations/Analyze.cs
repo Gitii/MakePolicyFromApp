@@ -14,7 +14,11 @@ class Analyze : IOperation<AnalyzeArguments>
     private IExtractor Extractor { get; }
     private ISignatureVerifier SignatureVerifier { get; }
 
-    public Analyze(ILogger<MainService> logger, IExtractor extractor, ISignatureVerifier signatureVerifier)
+    public Analyze(
+        ILogger<MainService> logger,
+        IExtractor extractor,
+        ISignatureVerifier signatureVerifier
+    )
     {
         this.Logger = logger;
         this.Extractor = extractor;
@@ -34,7 +38,6 @@ class Analyze : IOperation<AnalyzeArguments>
 
         var (rootDirectory, installerDirectory, appDirectory) = GetOutputDirectory();
 
-
         try
         {
             await Io.CopyToDirectoryAsync(args.InputFile, installerDirectory).ConfigureAwait(false);
@@ -50,8 +53,10 @@ class Analyze : IOperation<AnalyzeArguments>
             var table = new ConsoleTables.ConsoleTable("Result", "FileName");
             foreach (Signature signature in signatures)
             {
-                table.AddRow(signature.VerificationDetails,
-                    Path.GetRelativePath(rootDirectory, signature.FileName));
+                table.AddRow(
+                    signature.VerificationDetails,
+                    Path.GetRelativePath(rootDirectory, signature.FileName)
+                );
             }
 
             Console.WriteLine(table.ToString());
@@ -65,7 +70,10 @@ class Analyze : IOperation<AnalyzeArguments>
     private IList<string> FindAllExecutablesAndDlls(string directory)
     {
         return (new[] { "*.dll", "*.exe" })
-            .SelectMany((pattern) => Directory.EnumerateFiles(directory, pattern, SearchOption.AllDirectories))
+            .SelectMany(
+                (pattern) =>
+                    Directory.EnumerateFiles(directory, pattern, SearchOption.AllDirectories)
+            )
             .OrderBy((s) => s)
             .ToList();
     }

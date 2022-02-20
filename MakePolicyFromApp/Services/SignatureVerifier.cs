@@ -8,6 +8,11 @@ class SignatureVerifier : ISignatureVerifier
     {
         var (ok, details) = WinTrust.VerifyEmbeddedSignature(fileName);
 
-        return new Signature() { FileName = fileName, IsValid = ok, VerificationDetails = details };
+        return new Signature()
+        {
+            FileName = fileName,
+            IsValid = ok,
+            VerificationDetails = details
+        };
     }
 }

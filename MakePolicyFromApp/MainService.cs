@@ -22,24 +22,34 @@ class MainService : IHostedService
         IOperation<AnalyzeArguments> analyzeOperation
     )
     {
-        this.Logger = logger;
-        this.AppLifetime = appLifetime;
-        this.GenerateOperation = generateOperation;
-        this.AnalyzeOperation = analyzeOperation;
+        Logger = logger;
+        AppLifetime = appLifetime;
+        GenerateOperation = generateOperation;
+        AnalyzeOperation = analyzeOperation;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         var args = Environment.GetCommandLineArgs().Skip(1).ToArray();
 
-        var result = CommandLine.Parser.Default.ParseArguments<GenerateArguments, AnalyzeArguments>(
-            args
+        var parser = new Parser(
+            settings =>
+            {
+                settings.CaseInsensitiveEnumValues = true;
+                settings.IgnoreUnknownArguments = false;
+                settings.AutoHelp = true;
+                settings.AutoVersion = true;
+            }
         );
-        var returnCode = await result.MapResult<GenerateArguments, AnalyzeArguments, Task<int>>(
-            GenerateAndReturnExitCodeAsync,
-            AnalyzeAddAndReturnExitCodeAsync,
-            (errs) => Task.FromResult(-1)
-        ).ConfigureAwait(false);
+
+        var result = parser.ParseArguments<GenerateArguments, AnalyzeArguments>(args);
+        await result
+            .MapResult<GenerateArguments, AnalyzeArguments, Task<int>>(
+                GenerateAndReturnExitCodeAsync,
+                AnalyzeAddAndReturnExitCodeAsync,
+                (errs) => Task.FromResult(-1)
+            )
+            .ConfigureAwait(false);
 
         AppLifetime.StopApplication();
     }

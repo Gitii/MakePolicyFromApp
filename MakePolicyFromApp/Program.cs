@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -23,7 +22,8 @@ public class Program
                     services.AddHostedService<MainService>();
                     services.AddSingleton<IOperation<GenerateArguments>, Operations.Generate>();
                     services.AddSingleton<IOperation<AnalyzeArguments>, Operations.Analyze>();
-                    services.AddTransient<Services.IExtractor, Services.Extractor>();
+                    services.AddTransient<Services.IExtractor, Services.UniversalExtractor>();
+                    services.AddTransient<Services.IExtractor, Services.InnoSetupExtractor>();
                     services.AddTransient<Services.IPolicy, Services.Policy>();
                     services.AddTransient<Services.IPowershell, Services.Powershell>();
                     services.AddTransient<
