@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.NamingConventionBinder;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using CommandLine;
 
 namespace MakePolicyFromApp;
 
@@ -32,24 +34,17 @@ class MainService : IHostedService
     {
         var args = Environment.GetCommandLineArgs().Skip(1).ToArray();
 
-        var parser = new Parser(
-            settings =>
-            {
-                settings.CaseInsensitiveEnumValues = true;
-                settings.IgnoreUnknownArguments = false;
-                settings.AutoHelp = true;
-                settings.AutoVersion = true;
-            }
-        );
+        var rc = new RootCommand();
 
-        var result = parser.ParseArguments<GenerateArguments, AnalyzeArguments>(args);
-        await result
-            .MapResult<GenerateArguments, AnalyzeArguments, Task<int>>(
-                GenerateAndReturnExitCodeAsync,
-                AnalyzeAddAndReturnExitCodeAsync,
-                (errs) => Task.FromResult(-1)
-            )
-            .ConfigureAwait(false);
+        var analyzeCommand = AnalyzeArguments.CreateCommand();
+        analyzeCommand.Handler = CommandHandler.Create(AnalyzeAddAndReturnExitCodeAsync);
+        rc.AddCommand(analyzeCommand);
+
+        var generateCommand = GenerateArguments.CreateCommand();
+        generateCommand.Handler = CommandHandler.Create(GenerateAndReturnExitCodeAsync);
+        rc.AddCommand(generateCommand);
+
+        await rc.InvokeAsync(args).ConfigureAwait(false);
 
         AppLifetime.StopApplication();
     }
