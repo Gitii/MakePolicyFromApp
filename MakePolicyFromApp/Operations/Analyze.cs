@@ -10,19 +10,26 @@ namespace MakePolicyFromApp.Operations;
 
 class Analyze : IOperation<AnalyzeArguments>
 {
+    private readonly IReadOnlyList<IExtractor> _extractors;
     private ILogger<MainService> Logger { get; }
-    private IExtractor Extractor { get; }
     private ISignatureVerifier SignatureVerifier { get; }
 
     public Analyze(
         ILogger<MainService> logger,
-        IExtractor extractor,
+        IEnumerable<IExtractor> extractors,
         ISignatureVerifier signatureVerifier
     )
     {
+        _extractors = extractors.ToList();
         this.Logger = logger;
-        this.Extractor = extractor;
         this.SignatureVerifier = signatureVerifier;
+    }
+
+    private IExtractor GetExtractor(string extractor, IReadOnlyList<IExtractor> extractors)
+    {
+        return extractors.FirstOrDefault(
+            (e) => e.Name.Equals(extractor, StringComparison.OrdinalIgnoreCase)
+        ) ?? throw new Exception($"There is no extractor with name '{extractor}' defined.");
     }
 
     public async Task StartAsync(AnalyzeArguments args)
@@ -42,7 +49,9 @@ class Analyze : IOperation<AnalyzeArguments>
         {
             await Io.CopyToDirectoryAsync(args.InputFile, installerDirectory).ConfigureAwait(false);
 
-            await Extractor.ExtractAsync(inputFile, appDirectory).ConfigureAwait(false);
+            var extractor = GetExtractor(args.Extractor, _extractors);
+
+            await extractor.ExtractAsync(inputFile, appDirectory).ConfigureAwait(false);
 
             var executablesAndDlls = FindAllExecutablesAndDlls(rootDirectory);
 
