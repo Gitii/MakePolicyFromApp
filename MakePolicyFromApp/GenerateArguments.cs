@@ -29,8 +29,7 @@ class GenerateArguments
         'e',
         "extractor",
         Required = false,
-        HelpText =
-            $"The extractor that is used to extract the input file. Options are 'universal' and 'innoextract'. If not specified, 'universal' is used."
+        HelpText = $"The extractor that is used to extract the input file. Options are 'universal' and 'innoextract'. If not specified, 'universal' is used."
     )]
     public string Extractor { get; set; } = "universal";
 }

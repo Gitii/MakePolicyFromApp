@@ -99,9 +99,7 @@ abstract class BaseExtractor : IExtractor
 
             if (process == null)
             {
-                throw new Exception(
-                    $"Failed to start {DisplayName}: {extractorFilePath}"
-                );
+                throw new Exception($"Failed to start {DisplayName}: {extractorFilePath}");
             }
 
             await process.WaitForExitAsync().ConfigureAwait(false);
@@ -112,8 +110,7 @@ abstract class BaseExtractor : IExtractor
                 var stdOut = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
 
                 throw new Exception(
-                    $"Failed to extract using {DisplayName} ({TranslateExitCodes(process.ExitCode)}):{Environment.NewLine}{stdErr}{Environment.NewLine}{stdOut}"
-                        .Trim()
+                    $"Failed to extract using {DisplayName} ({TranslateExitCodes(process.ExitCode)}):{Environment.NewLine}{stdErr}{Environment.NewLine}{stdOut}".Trim()
                 );
             }
 
@@ -127,7 +124,11 @@ abstract class BaseExtractor : IExtractor
         }
     }
 
-    protected abstract void SetupStartInfo(ProcessStartInfo startInfo, string archiveFilePath, string outputDirectory);
+    protected abstract void SetupStartInfo(
+        ProcessStartInfo startInfo,
+        string archiveFilePath,
+        string outputDirectory
+    );
 
     protected abstract string TranslateExitCodes(int processExitCode);
 

@@ -32,10 +32,18 @@ record WinTrustData : IDisposable
     public WinTrustData(WinTrustFileInfo fileInfo)
     {
         // On Win7SP1+, don't allow MD2 or MD4 signatures
-        if ((Environment.OSVersion.Version.Major > 6) ||
-            ((Environment.OSVersion.Version.Major == 6) && (Environment.OSVersion.Version.Minor > 1)) ||
-            ((Environment.OSVersion.Version.Major == 6) && (Environment.OSVersion.Version.Minor == 1) &&
-             !String.IsNullOrEmpty(Environment.OSVersion.ServicePack)))
+        if (
+            (Environment.OSVersion.Version.Major > 6)
+            || (
+                (Environment.OSVersion.Version.Major == 6)
+                && (Environment.OSVersion.Version.Minor > 1)
+            )
+            || (
+                (Environment.OSVersion.Version.Major == 6)
+                && (Environment.OSVersion.Version.Minor == 1)
+                && !String.IsNullOrEmpty(Environment.OSVersion.ServicePack)
+            )
+        )
         {
             ProvFlags |= WinTrustDataProvFlags.DisableMd2AndMd4;
         }

@@ -9,9 +9,7 @@ class UniversalExtractor : BaseExtractor
     private const string DownloadUrl =
         "https://github.com/Bioruebe/UniExtract2/releases/download/v2.0.0-rc.3/UniExtractRC3.zip";
 
-    public UniversalExtractor(ILogger<MainService> logger) : base(logger)
-    {
-    }
+    public UniversalExtractor(ILogger<MainService> logger) : base(logger) { }
 
     protected override string GetExtractorDownloadUrl()
     {
@@ -22,7 +20,11 @@ class UniversalExtractor : BaseExtractor
 
     public override string Name { get; set; } = "universal";
 
-    protected override void SetupStartInfo(ProcessStartInfo startInfo, string archiveFilePath, string outputDirectory)
+    protected override void SetupStartInfo(
+        ProcessStartInfo startInfo,
+        string archiveFilePath,
+        string outputDirectory
+    )
     {
         startInfo.ArgumentList.Add(archiveFilePath);
         startInfo.ArgumentList.Add(outputDirectory);

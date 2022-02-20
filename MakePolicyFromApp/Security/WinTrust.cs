@@ -8,8 +8,7 @@ static class WinTrust
     private static readonly IntPtr InvalidHandleValue = new IntPtr(-1);
 
     // GUID of the action to perform
-    private const string WintrustActionGenericVerifyV2 =
-        "{00AAC56B-CD44-11d0-8CC2-00C04FC295EE}";
+    private const string WintrustActionGenericVerifyV2 = "{00AAC56B-CD44-11d0-8CC2-00C04FC295EE}";
 
     [DllImport(
         "wintrust.dll",
@@ -19,8 +18,7 @@ static class WinTrust
     )]
     static extern WinVerifyTrustResult WinVerifyTrust(
         [In] IntPtr hwnd,
-        [In] [MarshalAs(UnmanagedType.LPStruct)]
-        Guid pgActionId,
+        [In] [MarshalAs(UnmanagedType.LPStruct)] Guid pgActionId,
         [In] WinTrustData pWvtData
     );
 
