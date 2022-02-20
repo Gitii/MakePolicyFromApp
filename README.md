@@ -93,7 +93,9 @@ To start using `MakePolicyFromApp` as fast as possible, [download](https://githu
 You do not **need** any runtime enviroment because it's a self-contained applications and framework-independent.  
 
 ### Prerequisites
-* Windows 10 10.0.17763.0 **Pro** or better (WDAC is only supported on PRO or higher)
+* Windows 10 10.0.17763.0 **Pro** or newer 
+
+> **⚠️** WDAC is only supported on PRO or higher
 
 <!-- USAGE EXAMPLES -->
 ## Usage
@@ -101,33 +103,35 @@ You do not **need** any runtime enviroment because it's a self-contained applica
 Execute this application from the commandline. There is no GUI-support.  
 
 ```
-MakePolicyFromApp 1.0.0
-Copyright (c) 2021 Gitii
+Description:
 
-  generate    Analyzes the installer and generates a WDAC policy file.
+Usage:
+  MakePolicyFromApp [command] [options]
 
-  analyze     Analyzes the installer and prints the content to stdout.
+Options:
+  --version       Show version information
+  -?, -h, --help  Show help and usage information
 
-  help        Display more information on a specific command.
-
-  version     Display version information.
+Commands:
+  analyze   Analyzes the installer and prints the content to stdout.
+  generate  Analyzes the installer and generates a WDAC policy file.
 ```
 
 ### generate
 ```
-MakePolicyFromApp 1.0.0
-Copyright (c) 2021 Gitii
+Description:
+  Analyzes the installer and generates a WDAC policy file.
 
-  -i, --input     Required. The installer that will be analyzed.
+Usage:
+  MakePolicyFromApp generate [options]
 
-  -n, --name      Friendly name for policy: If not set, the name will be derived from the installer.
-
-  -o, --output    Required. The output file path to the policy file. If not set, the content will be printed to stdout.
-
-  --help          Display this help screen.
-
-  --version       Display version information.
-
+Options:
+  -i, --input, --input-file <input-file> (REQUIRED)  The installer that will be analyzed. []
+  -n, --context-name, --name <context-name>          Friendly name for policy. If not set, the name will be derived from the installer. []
+  -o, --output, --output-file <output-file>          The output file path to the policy file. If not set, the content will be printed to stdout. []
+  -e, --extractor <extractor>                        The extractor that is used to extract the input file. Options are 'universal' and 'innoextract'. If not
+                                                     specified, 'universal' is used. [default: universal]
+  -?, -h, --help                                     Show help and usage information
 ```
 
 #### Example
@@ -265,15 +269,17 @@ That will generate the policy file:
 
 ### analyze
 ```
-MakePolicyFromApp 1.0.0
-Copyright (c) 2021 Gitii
+Description:
+  Analyzes the installer and prints the content to stdout.
 
-  -i, --input    Required. The installer that will be analyzed.
+Usage:
+  MakePolicyFromApp analyze [options]
 
-  --help         Display this help screen.
-
-  --version      Display version information.
-
+Options:
+  -i, --input, --input-file <input-file> (REQUIRED)  The installer that will be analyzed. []
+  -e, --extractor <extractor>                        The extractor that is used to extract the input file. Options are 'universal' and 'innoextract'. If not
+                                                     specified, 'universal' is used. [default: universal]
+  -?, -h, --help                                     Show help and usage information
 ```
 
 #### Example
@@ -347,12 +353,10 @@ Contributions are what make the open source community such an amazing place to l
 5. Open a Pull Request
 
 
-
 <!-- LICENSE -->
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
-
 
 
 <!-- CONTACT -->
@@ -364,7 +368,7 @@ Project Link: [https://github.com/Gitii/MakePolicyFromApp](https://github.com/Gi
 ## Acknowledgements
 
 * [Universal Extractor 2 (UniExtract2)](https://github.com/Bioruebe/UniExtract2)
-* [CommandLineParser](https://github.com/commandlineparser/commandline)
+* [innoextract](https://github.com/dscharrer/innoextract)
 
 
 <!-- MARKDOWN LINKS & IMAGES -->

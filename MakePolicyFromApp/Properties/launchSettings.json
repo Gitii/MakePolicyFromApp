@@ -2,7 +2,7 @@
   "profiles": {
     "Help": {
       "commandName": "Project",
-      "commandLineArgs": "help analyze"
+      "commandLineArgs": "-h"
     },
     "sample generate 7zip": {
       "commandName": "Project",
