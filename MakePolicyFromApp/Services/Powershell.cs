@@ -4,13 +4,24 @@ using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.PowerShell;
+using ObjectPrinter;
 
 namespace MakePolicyFromApp.Services;
 
 public class Powershell : IPowershell
 {
+    private readonly ILogger<IPowershell> _logger;
+
+    public Powershell(ILogger<IPowershell> logger)
+    {
+        _logger = logger;
+    }
+
+#pragma warning disable MA0051 // Method is too long
     public async Task ExecuteCommandAsync(
+#pragma warning restore MA0051 // Method is too long
         string command,
         IDictionary<string, object> arguments,
         IEnumerable<string> modules
@@ -20,7 +31,7 @@ public class Powershell : IPowershell
         InitialSessionState initialSessionState = InitialSessionState.CreateDefault();
         initialSessionState.ExecutionPolicy = ExecutionPolicy.Unrestricted;
 
-        // Create a runspace and open it. This example uses C#8 simplified using statements
+        // Create a runspace and open it.
         using Runspace runspace = RunspaceFactory.CreateRunspace(initialSessionState);
         runspace.Open();
 
@@ -50,16 +61,36 @@ public class Powershell : IPowershell
 
         runtime.AddStatement();
 
-        await runtime.InvokeAsync().ConfigureAwait(false);
-
-        if (runtime.HadErrors)
+        try
         {
-            var stdError = String.Join(
-                Environment.NewLine,
-                runtime.Streams.Error.Select((o) => o.ToString())
+            await runtime.InvokeAsync().ConfigureAwait(false);
+        }
+        catch (RuntimeException runtimeException)
+        {
+            _logger.Log(
+                LogLevel.Error,
+                "Runtime exception: {0}: {1}\n{2}\n{3}",
+                runtimeException.ErrorRecord.InvocationInfo.InvocationName,
+                runtimeException.Message,
+                runtimeException.ErrorRecord.Exception.DumpToString(),
+                runtimeException.ErrorRecord.ErrorDetails.DumpToString()
             );
+        }
+        catch (Exception e)
+        {
+            _logger.Log(LogLevel.Error, $"Failed to invoke powershell session: {e.Message}\n{e}");
+        }
+        finally
+        {
+            if (runtime.HadErrors)
+            {
+                var stdError = String.Join(
+                    Environment.NewLine,
+                    runtime.Streams.Error.Select((o) => o.ToString())
+                );
 
-            throw new Exception($"Failed to execute powershell command {command}: " + stdError);
+                throw new Exception($"Failed to execute powershell command {command}: " + stdError);
+            }
         }
     }
 }

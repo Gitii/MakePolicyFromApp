@@ -58,6 +58,19 @@ class Policy : IPolicy
         }
     }
 
+    public string RemoveRules(string policyContent)
+    {
+        XDocument policyXml = XDocument.Parse(policyContent);
+
+        var siPolicy = policyXml.Root!;
+        var ns = siPolicy.Name.NamespaceName;
+        var rules = siPolicy.Element(XName.Get("Rules", ns))!;
+
+        rules.RemoveAll();
+
+        return policyXml.ToString();
+    }
+
     public Task<string> MakePolicyHumanReadableAsync(
         string policyContent,
         string contextDirectory,

@@ -28,7 +28,7 @@
     <a href="https://github.com/Gitii/MakePolicyFromApp"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/Gitii/MakePolicyFromApp/issues">Report Bug</a>·
+    <a href="https://github.com/Gitii/MakePolicyFromApp/issues">Report Bug</a> ·
     <a href="https://github.com/Gitii/MakePolicyFromApp/issues">Request Feature</a>
   </p>
 </p>
@@ -90,10 +90,10 @@ The values of `FriendlyName` & `ID` attributes will be changed for better readab
 ## Getting Started
 
 To start using `MakePolicyFromApp` as fast as possible, [download](https://github.com/Gitii/MakePolicyFromApp/releases) the latest release from this project page.  
-.Net 6 is required and can be downloaded from the [official .Net SDK website](https://dotnet.microsoft.com/en-us/download/dotnet/6.0).
+You do **not** need any runtime enviroment because it's a self-contained applications and framework-independent.
 
 ### Prerequisites
-* Windows 10 10.0.17763.0 **Pro** or newer 
+* Windows 10 10.0.17763.0 **Pro** or higher 
 
 > **⚠️** WDAC is only supported on PRO or higher
 
