@@ -46,11 +46,15 @@ class Generate : IOperation<GenerateArguments>
 
             var generatedPolicy = await Policy.GenerateAsync(rootDirectory).ConfigureAwait(false);
 
-            var contextName = args.ContextName ?? GetContextNameFromFile(args.InputFile);
+            var contextName = string.IsNullOrEmpty(args.ContextName)
+              ? GetContextNameFromFile(args.InputFile)
+              : args.ContextName;
 
             var betterPolicy = await Policy
                 .MakePolicyHumanReadableAsync(generatedPolicy, rootDirectory, contextName)
                 .ConfigureAwait(false);
+
+            betterPolicy = Policy.RemoveRules(betterPolicy);
 
             await WriteOutputAsync(betterPolicy, args.OutputFile).ConfigureAwait(false);
         }

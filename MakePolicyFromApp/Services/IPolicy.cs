@@ -11,4 +11,6 @@ public interface IPolicy
         string contextDirectory,
         string contextName
     );
+
+    string RemoveRules(string policyContent);
 }
